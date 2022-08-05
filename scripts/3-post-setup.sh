@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 #github-action genshdoc
 #
@@ -15,7 +16,6 @@ echo -ne "
                     Automated Arch Linux Installer
                         SCRIPTHOME: ArchTitus
 -------------------------------------------------------------------------
-
 Final Setup and Configurations
 GRUB EFI Bootloader Install & Check
 "
@@ -29,7 +29,20 @@ echo -ne "
 -------------------------------------------------------------------------
                Creating (and Theming) Grub Boot Menu
 -------------------------------------------------------------------------
+"
+# set kernel parameter for decrypting the drive
+if [[ "${FS}" == "luks" ]]; then
+sed -i "s%GRUB_CMDLINE_LINUX_DEFAULT=\"%GRUB_CMDLINE_LINUX_DEFAULT=\"cryptdevice=UUID=${ENCRYPTED_PARTITION_UUID}:ROOT root=/dev/mapper/ROOT %g" /etc/default/grub
+fi
+# set kernel parameter for adding splash screen
+sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& splash /' /etc/default/grub
 
+
+echo -e "Updating grub..."
+grub-mkconfig -o /boot/grub/grub.cfg
+echo -e "All set!"
+
+echo -ne "
 -------------------------------------------------------------------------
                Enabling (and Theming) Login Display Manager
 -------------------------------------------------------------------------
